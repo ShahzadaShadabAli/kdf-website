@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npx next *)",
       "Bash(npm install *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx firebase *)"
     ]
   }
 }
