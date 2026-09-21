@@ -33,6 +33,7 @@ export async function middleware(req) {
         "/api/partners",
         "/api/cabinet",
         "/api/voices",
+        "/api/success-stories",
       ].some((p) => pathname.startsWith(p))) ||
     // Membership requests: POST (public submit) stays open, GET (admin inbox)
     // and PATCH (status change) both require a session.
@@ -64,6 +65,7 @@ export const config = {
     "/api/membership/:path*",
     "/api/cabinet/:path*",
     "/api/voices/:path*",
+    "/api/success-stories/:path*",
     "/api/upload/:path*",
     "/api/users/:path*",
     "/api/revalidate",

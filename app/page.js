@@ -2,6 +2,7 @@ import Nav from "@/components/site/Nav";
 import Hero from "@/components/site/Hero";
 import Story from "@/components/site/Story";
 import VoicesStrip from "@/components/site/VoicesStrip";
+import SuccessStoriesSection from "@/components/site/SuccessStoriesSection";
 import GalleryGrid from "@/components/site/GalleryGrid";
 import ShopGrid from "@/components/site/ShopGrid";
 import LeaderCarousel from "@/components/site/LeaderCarousel";
@@ -20,6 +21,7 @@ import {
   getPartners,
   getCabinetMembers,
   getVoices,
+  getSuccessStories,
 } from "@/lib/data";
 import { CRAFTS } from "@/lib/validation/product";
 import { GALLERY_CATEGORIES } from "@/lib/validation/galleryItem";
@@ -27,7 +29,7 @@ import { GALLERY_CATEGORIES } from "@/lib/validation/galleryItem";
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [settings, products, gallery, leaders, partners, cabinet, voices] = await Promise.all([
+  const [settings, products, gallery, leaders, partners, cabinet, voices, successStories] = await Promise.all([
     getSettings(),
     getFirstProducts(8),
     getFirstGalleryItems(6),
@@ -35,6 +37,7 @@ export default async function HomePage() {
     getPartners(),
     getCabinetMembers(),
     getVoices(),
+    getSuccessStories(),
   ]);
 
   return (
@@ -66,10 +69,17 @@ export default async function HomePage() {
         <VoicesStrip voices={voices} />
         <Seam tone="night" />
 
+        {successStories.length > 0 && (
+          <>
+            <SuccessStoriesSection stories={successStories} />
+            <Seam tone="paper" />
+          </>
+        )}
+
         <section className="section on-paper" id="gallery">
           <div className="wrap">
             <div className="kicker">
-              <span className="num mono">04 — GALLERY</span>
+              <span className="num mono">05 — GALLERY</span>
               <span className="rule"></span>
             </div>
             <div className="section-head">
@@ -94,7 +104,7 @@ export default async function HomePage() {
         <section className="section on-card" id="shop">
           <div className="wrap">
             <div className="kicker">
-              <span className="num mono">05 — THE SHOP</span>
+              <span className="num mono">06 — THE SHOP</span>
               <span className="rule"></span>
             </div>
             <div className="section-head">
@@ -122,7 +132,7 @@ export default async function HomePage() {
             <section className="section on-paper" id="note">
               <div className="wrap">
                 <div className="kicker">
-                  <span className="num mono">06 — A NOTE</span>
+                  <span className="num mono">07 — A NOTE</span>
                   <span className="rule"></span>
                 </div>
                 <div className="section-head center">
@@ -152,7 +162,7 @@ export default async function HomePage() {
         <section className="section on-night" id="contact">
           <div className="wrap">
             <div className="kicker">
-              <span className="num mono">10 — GET IN TOUCH</span>
+              <span className="num mono">11 — GET IN TOUCH</span>
               <span className="rule"></span>
             </div>
             <div className="section-head">

@@ -8,14 +8,17 @@ const isDev = process.env.NODE_ENV !== "production";
 // production bundle never eval()s, so it stays out of the prod policy.
 const csp = [
   "default-src 'self'",
-  "img-src 'self' https://res.cloudinary.com data:",
+  // i.ytimg.com serves success-story video thumbnails.
+  "img-src 'self' https://res.cloudinary.com https://i.ytimg.com data:",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   // The admin uploader posts the file straight to Cloudinary's upload API
   // from the browser (see lib/uploadImage.js) — connect-src must allow it.
   "connect-src 'self' https://api.cloudinary.com",
-  "frame-src https://www.google.com",
+  // Success-story videos embed straight from YouTube — no video file ever
+  // touches our own server/storage.
+  "frame-src https://www.google.com https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
 ].join("; ");
 

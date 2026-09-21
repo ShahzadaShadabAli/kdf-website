@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "migrate": "node scripts/migrate-mongo-to-firestore.js"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",

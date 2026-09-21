@@ -15,6 +15,7 @@ const NAV = [
       { href: "/admin/gallery", label: "Gallery", icon: "image" },
       { href: "/admin/leaders", label: "Leaders", icon: "users" },
       { href: "/admin/voices", label: "Voices & Work", icon: "quote" },
+      { href: "/admin/success-stories", label: "Success Stories", icon: "play" },
       { href: "/admin/cabinet", label: "Cabinet", icon: "tree" },
       { href: "/admin/partners", label: "Partners", icon: "handshake" },
     ],
@@ -96,6 +97,12 @@ const ICONS = {
       <path d="M16 8c-2 0-3.5 1.5-3.5 4S14 15.5 16 15c0 2-1 3-2.5 3.5" />
     </svg>
   ),
+  play: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor" stroke="none" />
+    </svg>
+  ),
   gear: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <circle cx="12" cy="12" r="3" />
@@ -118,6 +125,7 @@ const TITLES = {
   "/admin/gallery": ["Gallery", "Manage photo essay images"],
   "/admin/leaders": ["Leaders", "Manage the Leader's Note carousel"],
   "/admin/voices": ["Voices & Work", "Manage the homepage quote/vignette strip"],
+  "/admin/success-stories": ["Success Stories", "Manage the YouTube video cards"],
   "/admin/cabinet": ["Cabinet", "Manage the leadership org chart"],
   "/admin/partners": ["Partners", "Manage funder & partner logos"],
   "/admin/membership-requests": ["Membership Requests", "Honorary and permanent member applications"],
