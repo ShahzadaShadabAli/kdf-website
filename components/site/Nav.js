@@ -43,7 +43,9 @@ export default function Nav({ active, logo }) {
             <circle cx="34" cy="30" r="2.6" fill="var(--teal-soft)" />
           </svg>
           )}
-          Karakoram Disability Forum
+          <span className="brand-text">
+            <span>Karakoram</span> <span>Disability Forum</span>
+          </span>
         </Link>
         <button
           className="burger"
