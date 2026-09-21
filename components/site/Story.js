@@ -84,6 +84,7 @@ const PILLARS = [
 
 export default function Story({ settings }) {
   const storyImage = settings?.storyImage;
+  const heroImage = settings?.heroImage;
   return (
     <section className="section on-paper" id="story">
       <div className="wrap">
@@ -114,7 +115,18 @@ export default function Story({ settings }) {
                   </svg>
                 )}
               </div>
-              <div className="collage-item collage-swatch" aria-hidden="true">
+              <div className="collage-item collage-swatch" aria-hidden={!heroImage?.url}>
+                {heroImage?.url ? (
+                  // The left of this tile sits under the story photo, so bias the crop leftward
+                  // to keep the middle of a wide photo in the visible part.
+                  <Image
+                    src={heroImage.url}
+                    alt={heroImage.alt || "Karakoram Disability Forum"}
+                    fill
+                    sizes="200px"
+                    style={{ objectFit: "cover", objectPosition: "25% center" }}
+                  />
+                ) : (
                 <svg viewBox="0 0 160 160" preserveAspectRatio="xMidYMid slice">
                   <rect width="160" height="160" fill="var(--card)" />
                   <path d="M12 12 L30 30 M30 12 L12 30" stroke="var(--teal)" strokeWidth="3" strokeLinecap="round" />
@@ -124,6 +136,7 @@ export default function Story({ settings }) {
                   <path d="M12 76 L30 94 M30 76 L12 94" stroke="var(--clay)" strokeWidth="3" strokeLinecap="round" />
                   <path d="M44 76 L62 94 M62 76 L44 94" stroke="var(--teal)" strokeWidth="3" strokeLinecap="round" />
                 </svg>
+                )}
               </div>
               <div className="collage-item collage-seal" aria-hidden="true">
                 <svg viewBox="0 0 120 120">
