@@ -13,10 +13,9 @@ export async function GET() {
   const db = await getDb();
   const doc = await db.collection("siteSettings").doc(SITE_SETTINGS_ID).get();
   const settings = doc.exists ? docToItem(doc) : null;
-  return Response.json(
-    { settings },
-    { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" } }
-  );
+  // Only the admin Settings form reads this; a cached copy would show old
+  // values after saving and send them back on the next save.
+  return Response.json({ settings }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PATCH(request) {

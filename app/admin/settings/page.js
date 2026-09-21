@@ -22,14 +22,19 @@ const FIELDS = [
 ];
 
 export default function SettingsAdminPage() {
-  const { data, mutate, isLoading } = useSWR("/api/settings", fetcher);
+  // No background refetching: closing the file picker counts as a window
+  // focus, and a refetch there would overwrite a just-uploaded, unsaved image.
+  const { data, mutate, isLoading } = useSWR("/api/settings", fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    if (data?.settings) setForm(data.settings);
-  }, [data]);
+    if (data?.settings && !form) setForm(data.settings);
+  }, [data, form]);
 
   async function save() {
     setSaving(true);
@@ -44,9 +49,10 @@ export default function SettingsAdminPage() {
       payload.logo = form.logo ?? null;
       payload.heroImage = form.heroImage ?? null;
       payload.storyImage = form.storyImage ?? null;
-      await apiSend("/api/settings", "PATCH", payload);
-      await mutate();
-      setStatus("Settings saved — homepage revalidated.");
+      const res = await apiSend("/api/settings", "PATCH", payload);
+      setForm(res.settings);
+      await mutate({ settings: res.settings }, { revalidate: false });
+      setStatus("Settings saved — the website is updated.");
     } catch (e) {
       setStatus(e.message);
     } finally {
