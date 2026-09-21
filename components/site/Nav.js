@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 const LINKS = [
@@ -12,13 +13,23 @@ const LINKS = [
   { href: "/#contact", label: "Contact" },
 ];
 
-export default function Nav({ active }) {
+export default function Nav({ active, logo }) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="nav">
       <div className="nav-inner">
         <Link className="brand" href="/">
+          {logo?.url ? (
+            <Image
+              className="brand-logo"
+              src={logo.url}
+              alt=""
+              width={Math.round((36 * logo.width) / logo.height)}
+              height={36}
+              priority
+            />
+          ) : (
           <svg className="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
             <path
               d="M6 30 C 6 18, 14 8, 20 8 S 34 18, 34 30"
@@ -31,6 +42,7 @@ export default function Nav({ active }) {
             <circle cx="6" cy="30" r="2.6" fill="var(--teal-soft)" />
             <circle cx="34" cy="30" r="2.6" fill="var(--teal-soft)" />
           </svg>
+          )}
           Karakoram Disability Forum
         </Link>
         <button

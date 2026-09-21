@@ -16,7 +16,7 @@ export default async function ShopPage() {
 
   return (
     <>
-      <Nav active="Shop" />
+      <Nav active="Shop" logo={settings?.logo} />
       <section className="page-hero">
         <div className="wrap">
           <span className="breadcrumb mono">Home / Shop</span>

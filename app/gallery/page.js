@@ -16,7 +16,7 @@ export default async function GalleryPage() {
 
   return (
     <>
-      <Nav active="Gallery" />
+      <Nav active="Gallery" logo={settings?.logo} />
       <section className="page-hero">
         <div className="wrap">
           <span className="breadcrumb mono">Home / Gallery</span>

@@ -41,6 +41,7 @@ export default function SettingsAdminPage() {
       });
       payload.mapLat = form.mapLat === "" || form.mapLat == null ? null : Number(form.mapLat);
       payload.mapLng = form.mapLng === "" || form.mapLng == null ? null : Number(form.mapLng);
+      payload.logo = form.logo ?? null;
       payload.heroImage = form.heroImage ?? null;
       payload.storyImage = form.storyImage ?? null;
       await apiSend("/api/settings", "PATCH", payload);
@@ -113,10 +114,22 @@ export default function SettingsAdminPage() {
       </div>
 
       <div className="admin-panel" style={{ padding: "26px 30px", maxWidth: 640, marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 22 }}>Photos</h3>
+        <h3 style={{ marginBottom: 22 }}>Logo &amp; Photos</h3>
         <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", marginBottom: 18 }}>
-          Optional — each spot shows an illustrated graphic until a real photo is uploaded here.
+          Optional — each spot shows an illustrated graphic until a real image is uploaded here.
         </p>
+        <div className="admin-field admin-field-full">
+          <label>Logo</label>
+          <ImageUploader
+            value={form.logo}
+            onChange={(v) => setForm({ ...form, logo: v })}
+            altPlaceholder="Karakoram Disability Forum logo"
+          />
+          <p style={{ fontSize: "0.78rem", color: "var(--ink-soft)", marginTop: 6 }}>
+            Shown in the website header and used as the browser-tab icon (favicon). A square PNG
+            with a transparent background works best.
+          </p>
+        </div>
         <div className="admin-field-grid">
           <div className="admin-field">
             <label>Hero Photo</label>

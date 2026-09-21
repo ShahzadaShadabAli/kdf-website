@@ -2,6 +2,7 @@ export const SiteSettingsShape = {
   _id: "singleton",
   heroHeadline: "string",
   heroSubtext: "string",
+  logo: "{url,alt,width,height} | null", // header logo + favicon
   heroImage: "{url,alt,width,height} | null",
   storyImage: "{url,alt,width,height} | null",
   whatsappNumber: "string",

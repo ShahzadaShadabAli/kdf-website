@@ -57,6 +57,7 @@ async function main() {
       heroHeadline: "Every thread carries a name.",
       heroSubtext:
         "Karakoram Disability Forum is a persons-with-disabilities organisation working across Baltistan on rights, independent living, and economic empowerment.",
+      logo: null,
       heroImage: null,
       storyImage: null,
       whatsappNumber: process.env.WHATSAPP_NUMBER || "923469225580",

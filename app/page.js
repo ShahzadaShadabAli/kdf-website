@@ -42,7 +42,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Nav active="Story" />
+      <Nav active="Story" logo={settings?.logo} />
       <main id="main">
         <Hero settings={settings} />
         <Seam tone="night" />
