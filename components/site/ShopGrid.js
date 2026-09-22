@@ -60,7 +60,7 @@ export default function ShopGrid({ initialItems, initialCursor, crafts, whatsapp
         <div className="swatch-punch"></div>
         <div className="swatch-art" onClick={() => setLightboxIndex(i)} style={{ cursor: "pointer" }}>
           {img?.url ? (
-            <Image src={img.url} alt={img.alt} width={img.width || 200} height={img.height || 164} />
+            <Image src={img.url} alt={img.alt} width={400} height={328} sizes="(max-width: 560px) 90vw, 320px" />
           ) : (
             <SwatchPattern kind={patternKind(p._id)} />
           )}
@@ -127,15 +127,16 @@ export default function ShopGrid({ initialItems, initialCursor, crafts, whatsapp
             <span className="load-more-hint mono">
               {cursor ? "More pieces to load" : "You've reached the end of the catalogue"}
             </span>
-            <button
-              className={`btn btn-primary${loading ? " loading" : ""}`}
-              disabled={!cursor}
-              onClick={() => loadPage(craft, false)}
-            >
-              <span className="label">Load More</span>
-              <span className="spinner"></span>
-              <span className="arrow">→</span>
-            </button>
+            {cursor && (
+              <button
+                className={`btn btn-primary${loading ? " loading" : ""}`}
+                onClick={() => loadPage(craft, false)}
+              >
+                <span className="label">Load More</span>
+                <span className="spinner"></span>
+                <span className="arrow">→</span>
+              </button>
+            )}
           </div>
         </>
       )}

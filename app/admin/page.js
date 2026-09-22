@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/firebase";
 import { docsToItems } from "@/lib/firestoreHelpers";
+import { PENDING_MEMBERSHIP_STATUSES } from "@/lib/validation/membership";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,12 @@ async function getStats() {
     countWhere(db.collection("products"), "status", "published"),
     countWhere(db.collection("galleryItems"), "status", "published"),
     countWhere(db.collection("contactMessages"), "status", "new"),
-    countWhere(db.collection("membershipRequests"), "status", "new"),
+    db
+      .collection("membershipRequests")
+      .where("status", "in", PENDING_MEMBERSHIP_STATUSES)
+      .count()
+      .get()
+      .then((snapshot) => snapshot.data().count),
     db.collection("auditLog").orderBy("createdAt", "desc").limit(10).get(),
   ]);
   return {
@@ -80,7 +86,7 @@ export default async function AdminDashboard() {
             </svg>
           </div>
           <div className="stat-num">{stats.newMembership}</div>
-          <div className="stat-label">New membership applications</div>
+          <div className="stat-label">Membership applications waiting</div>
         </div>
       </div>
 

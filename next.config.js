@@ -8,8 +8,9 @@ const isDev = process.env.NODE_ENV !== "production";
 // production bundle never eval()s, so it stays out of the prod policy.
 const csp = [
   "default-src 'self'",
-  // i.ytimg.com serves success-story video thumbnails.
-  "img-src 'self' https://res.cloudinary.com https://i.ytimg.com data:",
+  // i.ytimg.com serves success-story video thumbnails; blob: is the admin
+  // crop step's local preview of a photo before it is uploaded.
+  "img-src 'self' https://res.cloudinary.com https://i.ytimg.com data: blob:",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",

@@ -10,7 +10,8 @@ export const SiteSettingsShape = {
   address: "string",
   mapLat: "number | null", // exact map pin, takes priority over address search
   mapLng: "number | null",
-  bankName: "string",
+  bankAccounts: "[{bankName,accountTitle,accountNumber,iban,branchName}]", // shown as choices on Donate
+  bankName: "string", // older single-account fields, read only as a fallback
   accountTitle: "string",
   accountNumber: "string",
   iban: "string",
@@ -19,6 +20,7 @@ export const SiteSettingsShape = {
   instagramUrl: "string",
   whatsappUrl: "string",
   linkedinUrl: "string",
+  tiktokUrl: "string",
   updatedAt: "Date",
   updatedBy: "string",
 };

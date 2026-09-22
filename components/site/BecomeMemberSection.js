@@ -44,7 +44,36 @@ const EMPTY_FORM = {
   companyWebsite: "",
 };
 
-export default function BecomeMemberSection() {
+function MemberStats({ stats }) {
+  if (!stats) return null;
+  if (!stats.total) {
+    return (
+      <p className="member-stats-empty">
+        Applications are now open online — be among the first to join KDF through our website.
+      </p>
+    );
+  }
+  return (
+    <div className="member-stats">
+      <p className="member-stats-lead">
+        Since this website launched, <strong>{stats.total}</strong>{" "}
+        {stats.total === 1 ? "person has" : "people have"} joined KDF online.
+      </p>
+      <div className="member-stats-nums">
+        <div>
+          <span className="member-stats-n">{stats.honorary}</span>
+          <span className="member-stats-l">Honorary {stats.honorary === 1 ? "member" : "members"}</span>
+        </div>
+        <div>
+          <span className="member-stats-n">{stats.permanent}</span>
+          <span className="member-stats-l">Regular {stats.permanent === 1 ? "member" : "members"}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function BecomeMemberSection({ stats }) {
   const [selected, setSelected] = useState(null); // 'honorary' | 'permanent' | null
   const [form, setForm] = useState(EMPTY_FORM);
   const [status, setStatus] = useState(null); // null | 'sending' | 'success' | 'error'
@@ -127,8 +156,9 @@ export default function BecomeMemberSection() {
         <div className="section-head">
           <span className="section-eyebrow">Become a Member</span>
           <h2>Two ways to join.</h2>
-          <p>Pick the membership that fits, and send us a few details — we&apos;ll follow up directly.</p>
         </div>
+
+        <MemberStats stats={stats} />
 
         <div className="member-grid">
           {OPTIONS.map((opt) => (

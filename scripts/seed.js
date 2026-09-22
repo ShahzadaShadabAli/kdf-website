@@ -65,6 +65,7 @@ async function main() {
       address: "Skardu Independent Living Centre (ILC), Near SCO Mess, RHQ Hospital, Opp. Boys High School No.1, Skardu, GB",
       mapLat: null,
       mapLng: null,
+      bankAccounts: [],
       bankName: "",
       accountTitle: "",
       accountNumber: "",
@@ -74,6 +75,7 @@ async function main() {
       instagramUrl: "",
       whatsappUrl: "",
       linkedinUrl: "",
+      tiktokUrl: "",
       updatedAt: new Date(),
       updatedBy: "seed",
     });

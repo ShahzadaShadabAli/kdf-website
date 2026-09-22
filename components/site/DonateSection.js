@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { bankAccountsOf } from "@/lib/bankAccounts";
 
 function CopyableRow({ label, value }) {
   if (!value) return null;
@@ -24,7 +26,9 @@ function CopyableRow({ label, value }) {
 }
 
 export default function DonateSection({ settings }) {
-  const hasBankDetails = settings?.accountNumber || settings?.iban;
+  const accounts = bankAccountsOf(settings).filter((a) => a.accountNumber || a.iban);
+  const [selected, setSelected] = useState(0);
+  const account = accounts[Math.min(selected, accounts.length - 1)];
 
   return (
     <section className="section on-card" id="donate">
@@ -36,21 +40,34 @@ export default function DonateSection({ settings }) {
         <div className="section-head">
           <span className="section-eyebrow">Donate</span>
           <h2>Fund the Resource Center directly.</h2>
-          <p>
-            Donations go straight to rehabilitation support, assistive devices, and the craft
-            programme. Transfer directly using the bank details below — nothing is processed
-            on this website.
-          </p>
         </div>
 
         <div className="donate-grid">
-          {hasBankDetails ? (
+          {account ? (
             <div className="donate-card">
-              <CopyableRow label="Bank" value={settings.bankName} />
-              <CopyableRow label="Account Title" value={settings.accountTitle} />
-              <CopyableRow label="Account Number" value={settings.accountNumber} />
-              <CopyableRow label="IBAN" value={settings.iban} />
-              <CopyableRow label="Branch" value={settings.branchName} />
+              {accounts.length > 1 && (
+                <div className="donate-tabs" role="tablist" aria-label="Choose a bank account">
+                  {accounts.map((a, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      role="tab"
+                      aria-selected={a === account}
+                      className={`donate-tab${a === account ? " active" : ""}`}
+                      onClick={() => setSelected(i)}
+                    >
+                      {a.bankName || `Account ${i + 1}`}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div role={accounts.length > 1 ? "tabpanel" : undefined}>
+                <CopyableRow label="Bank" value={account.bankName} />
+                <CopyableRow label="Account Title" value={account.accountTitle} />
+                <CopyableRow label="Account Number" value={account.accountNumber} />
+                <CopyableRow label="IBAN" value={account.iban} />
+                <CopyableRow label="Branch" value={account.branchName} />
+              </div>
             </div>
           ) : (
             <div className="donate-card donate-empty">

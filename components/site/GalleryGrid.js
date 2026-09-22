@@ -67,7 +67,13 @@ export default function GalleryGrid({ initialItems, initialCursor, categories, v
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLightboxIndex(i); } }}
           >
             {g.image?.url ? (
-              <Image src={g.image.url} alt={g.image.alt} width={g.image.width || 300} height={g.image.height || 230} />
+              <Image
+                src={g.image.url}
+                alt={g.image.alt}
+                width={600}
+                height={450}
+                sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 400px"
+              />
             ) : (
               <ScenePattern scene={sceneFor(g._id)} h={230} />
             )}
@@ -84,15 +90,16 @@ export default function GalleryGrid({ initialItems, initialCursor, categories, v
           <span className="load-more-hint mono">
             {cursor ? "More photos to load" : "You've reached the end of the gallery"}
           </span>
-          <button
-            className={`btn btn-primary${loading ? " loading" : ""}`}
-            disabled={!cursor}
-            onClick={() => loadPage(category, false)}
-          >
-            <span className="label">Load More</span>
-            <span className="spinner"></span>
-            <span className="arrow">→</span>
-          </button>
+          {cursor && (
+            <button
+              className={`btn btn-primary${loading ? " loading" : ""}`}
+              onClick={() => loadPage(category, false)}
+            >
+              <span className="label">Load More</span>
+              <span className="spinner"></span>
+              <span className="arrow">→</span>
+            </button>
+          )}
         </div>
       ) : (
         <div className="load-more-wrap">

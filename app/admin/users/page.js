@@ -65,19 +65,19 @@ export default function UsersAdminPage() {
               )}
               {items.map((u) => (
                 <tr key={u._id}>
-                  <td>
+                  <td data-label="Name">
                     <strong>{u.name}</strong>
                   </td>
-                  <td>{u.email}</td>
-                  <td>
+                  <td data-label="Email">{u.email}</td>
+                  <td data-label="Role">
                     <span className={`pill ${u.role === "super_admin" ? "pill-new" : "pill-contacted"}`}>
                       {u.role.replace("_", " ")}
                     </span>
                   </td>
-                  <td className="mono" style={{ color: "var(--ink-soft)" }}>
+                  <td data-label="Last Login" className="mono" style={{ color: "var(--ink-soft)" }}>
                     {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : "Never"}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`pill ${u.isActive ? "pill-published" : "pill-archived"}`}>
                       {u.isActive ? "active" : "disabled"}
                     </span>

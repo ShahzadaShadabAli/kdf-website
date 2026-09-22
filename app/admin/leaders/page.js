@@ -5,6 +5,7 @@ import { fetcher, apiSend } from "@/lib/swrFetcher";
 import Drawer from "@/components/admin/Drawer";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { LEADER_STATUSES } from "@/lib/validation/leader";
+import { ASPECT } from "@/lib/imageAspects";
 
 const PILL = { published: "pill-published", draft: "pill-draft", archived: "pill-archived" };
 
@@ -96,12 +97,12 @@ export default function LeadersAdminPage() {
                       )}
                     </div>
                   </td>
-                  <td className="mono">{l.order}</td>
-                  <td>
+                  <td data-label="Order" className="mono">{l.order}</td>
+                  <td data-label="Name">
                     <strong>{l.name}</strong>
                   </td>
-                  <td style={{ color: "var(--ink-soft)" }}>{l.title}</td>
-                  <td>
+                  <td data-label="Title" style={{ color: "var(--ink-soft)" }}>{l.title}</td>
+                  <td data-label="Status">
                     <span className={`pill ${PILL[l.status]}`}>{l.status}</span>
                   </td>
                   <td>
@@ -173,7 +174,7 @@ export default function LeadersAdminPage() {
         </div>
         <div className="admin-field">
           <label>Photo</label>
-          <ImageUploader value={form.photo} altPlaceholder={form.name} onChange={(photo) => setForm({ ...form, photo })} />
+          <ImageUploader value={form.photo} aspect={ASPECT.portrait} altPlaceholder={form.name} onChange={(photo) => setForm({ ...form, photo })} />
         </div>
       </Drawer>
     </>

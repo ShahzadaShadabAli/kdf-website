@@ -23,10 +23,6 @@ export default function VoicesStrip({ voices }) {
         <div className="section-head">
           <span className="section-eyebrow">From the Resource Center</span>
           <h2>Told in their own words, made by their own hands.</h2>
-          <p>
-            A photo essay is next on the list — real portraits, real workshops. Until then,
-            here&apos;s the shape of it: craft and voice, side by side.
-          </p>
         </div>
 
         <div className="strip">
@@ -35,7 +31,7 @@ export default function VoicesStrip({ voices }) {
             const vignette = (
               <Reveal className="strip-vignette" key={`${v._id}-vignette`}>
                 {v.image?.url ? (
-                  <Image src={v.image.url} alt={v.image.alt || v.vignetteTitle} width={300} height={140} />
+                  <Image src={v.image.url} alt={v.image.alt || v.vignetteTitle} width={600} height={280} sizes="(max-width: 900px) 100vw, 520px" />
                 ) : (
                   <ScenePattern scene={sceneFor(v._id)} h={140} />
                 )}

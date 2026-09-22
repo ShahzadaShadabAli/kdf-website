@@ -22,6 +22,7 @@ import {
   getCabinetMembers,
   getVoices,
   getSuccessStories,
+  getMemberStats,
 } from "@/lib/data";
 import { CRAFTS } from "@/lib/validation/product";
 import { GALLERY_CATEGORIES } from "@/lib/validation/galleryItem";
@@ -29,7 +30,7 @@ import { GALLERY_CATEGORIES } from "@/lib/validation/galleryItem";
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [settings, products, gallery, leaders, partners, cabinet, voices, successStories] = await Promise.all([
+  const [settings, products, gallery, leaders, partners, cabinet, voices, successStories, memberStats] = await Promise.all([
     getSettings(),
     getFirstProducts(8),
     getFirstGalleryItems(6),
@@ -38,6 +39,7 @@ export default async function HomePage() {
     getCabinetMembers(),
     getVoices(),
     getSuccessStories(),
+    getMemberStats(),
   ]);
 
   return (
@@ -58,7 +60,6 @@ export default async function HomePage() {
             <div className="section-head center">
               <span className="section-eyebrow">The Cabinet</span>
               <h2>Who runs the Forum.</h2>
-              <p>The Forum&apos;s leadership structure, from the Chairperson down.</p>
             </div>
             <CabinetTree members={cabinet} />
           </div>
@@ -85,10 +86,6 @@ export default async function HomePage() {
             <div className="section-head">
               <span className="section-eyebrow">In the workshop</span>
               <h2>Moments from around Skardu.</h2>
-              <p>
-                Craft circles, the Resource Center, and the shop shelf. Click a tile to view it
-                fullscreen.
-              </p>
             </div>
             <GalleryGrid
               initialItems={gallery.items}
@@ -110,11 +107,6 @@ export default async function HomePage() {
             <div className="section-head">
               <span className="section-eyebrow">Economic empowerment programme</span>
               <h2>Made by hand, sold by name.</h2>
-              <p>
-                Every piece is one of a kind, tagged with the member who made it. Pick a craft,
-                then message us on WhatsApp — we&apos;ll confirm details, price, and delivery with
-                you directly.
-              </p>
             </div>
             <ShopGrid
               initialItems={products.items}
@@ -151,7 +143,7 @@ export default async function HomePage() {
 
         <Seam tone="paper" />
 
-        <BecomeMemberSection />
+        <BecomeMemberSection stats={memberStats} />
 
         <Seam tone="paper" />
 
@@ -168,10 +160,6 @@ export default async function HomePage() {
             <div className="section-head">
               <span className="section-eyebrow">Say hello</span>
               <h2>Find us in Skardu.</h2>
-              <p>
-                Reach us on WhatsApp or email — see the footer below — or find the Resource
-                Center on the map.
-              </p>
             </div>
             <MapEmbed address={settings?.address} lat={settings?.mapLat} lng={settings?.mapLng} />
           </div>

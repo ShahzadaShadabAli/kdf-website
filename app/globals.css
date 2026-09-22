@@ -269,6 +269,11 @@ button {
   max-height: 64vh;
   object-fit: cover;
 }
+/* The full-screen viewer shows the whole photo. */
+.lightbox-art img {
+  height: auto;
+  object-fit: contain;
+}
 .lightbox-cap {
   margin-top: 24px;
   color: var(--cream);
@@ -731,6 +736,16 @@ header.nav {
   padding: 110px 30px;
   position: relative;
 }
+/* Phones: every section holds a single .wrap, which already keeps text off the
+   screen edge — drop the section's own side padding so text isn't squeezed. */
+@media (max-width: 560px) {
+  .section {
+    padding: 80px 0;
+  }
+  .wrap {
+    padding: 0 22px;
+  }
+}
 .section.on-night {
   background: var(--night);
   color: var(--cream);
@@ -795,17 +810,6 @@ header.nav {
 .on-night .section-head h2 {
   color: var(--cream);
 }
-.section-head p {
-  color: var(--ink-soft);
-  font-size: 1.06rem;
-  margin-top: 18px;
-  line-height: 1.68;
-  max-width: 56ch;
-}
-.on-night .section-head p {
-  color: var(--cream-soft);
-}
-
 .reveal {
   opacity: 0;
   transform: translateY(26px);
@@ -991,6 +995,29 @@ header.nav {
     grid-template-columns: 44px 34px 1fr;
   }
 }
+/* Phones: the number becomes a small label above, so the text gets the full width */
+@media (max-width: 560px) {
+  .ledger-row {
+    grid-template-columns: 30px 1fr;
+    gap: 6px 14px;
+    padding: 26px 0;
+    margin: 0;
+  }
+  .ledger-row:hover {
+    transform: none;
+  }
+  .ledger-num {
+    grid-column: 1 / -1;
+    padding-top: 0;
+  }
+  .ledger-row .pillar-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .ledger-body h3 {
+    font-size: 1.3rem;
+  }
+}
 .ledger-num {
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 0.9rem;
@@ -1086,11 +1113,18 @@ header.nav {
 .strip-vignette:hover svg {
   transform: scale(1.03);
 }
-.strip-vignette svg {
+.strip-vignette svg,
+.strip-vignette img {
   width: 100%;
   height: auto;
   margin-bottom: 22px;
   transition: transform 0.4s ease;
+}
+/* Fixed frame (ASPECT.vignette) matching the placeholder drawing's shape. */
+.strip-vignette img {
+  aspect-ratio: 300 / 140;
+  object-fit: cover;
+  border-radius: 3px;
 }
 .strip-vignette .cap {
   font-family: var(--font-ibm-plex-mono), monospace;
@@ -1266,6 +1300,12 @@ header.nav {
   display: block;
   transition: transform 0.5s ease;
 }
+/* Fixed 4:3 frame (ASPECT.gallery) — photos are cropped to it, never stretched. */
+.gtile img {
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
 .gtile:hover svg,
 .gtile:hover img {
   transform: scale(1.05);
@@ -1303,6 +1343,7 @@ header.nav {
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 .gallery-tabs,
 .shop-tabs {
@@ -1390,6 +1431,9 @@ header.nav {
 .shop-rack::-webkit-scrollbar-thumb {
   background: var(--gold-soft);
   border-radius: 99px;
+}
+.shop-tabs + .shop-grid {
+  margin-top: 28px;
 }
 .shop-grid {
   display: grid;
@@ -1518,7 +1562,7 @@ header.nav {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: -14px 0 30px;
+  margin: 16px 0 24px;
 }
 
 /* ============ LEADER'S NOTE ============ */
@@ -1944,8 +1988,113 @@ main.wrap {
 .on-night .donate-empty {
   color: var(--cream-soft);
 }
+/* One button per bank account; the chosen account's details show below. */
+.donate-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.donate-tab {
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line-light);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.donate-tab:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.donate-tab.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--cream);
+}
+@media (max-width: 480px) {
+  .donate-card {
+    padding: 24px 20px;
+  }
+  .donate-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .donate-row .value {
+    text-align: left;
+    font-size: 0.92rem;
+    overflow-wrap: anywhere;
+  }
+}
 
 /* ============ BECOME A MEMBER ============ */
+/* "Joined through the website" counter above the two membership cards */
+.member-stats {
+  max-width: 1180px;
+  margin: 0 auto 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px 40px;
+  padding: 22px 28px;
+  background: var(--card);
+  border: 1px solid var(--line-light);
+  border-left: 4px solid var(--teal);
+  border-radius: 6px;
+}
+.member-stats-lead {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+.member-stats-lead strong {
+  color: var(--teal);
+}
+.member-stats-nums {
+  display: flex;
+  gap: 36px;
+}
+.member-stats-nums > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.member-stats-n {
+  font-family: var(--font-pt-serif), serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--teal);
+}
+.member-stats-l {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.member-stats-empty {
+  max-width: 1180px;
+  margin: 0 auto 26px;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+}
+@media (max-width: 560px) {
+  .member-stats {
+    padding: 18px 18px;
+  }
+  .member-stats-nums {
+    gap: 24px;
+  }
+  .member-stats-n {
+    font-size: 1.8rem;
+  }
+}
 .member-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

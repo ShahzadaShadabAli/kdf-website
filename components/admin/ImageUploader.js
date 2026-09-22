@@ -1,20 +1,24 @@
 "use client";
 import { useRef, useState } from "react";
 import { uploadImageToCloudinary } from "@/lib/uploadImage";
+import { cropToFile } from "@/lib/cropImage";
+import CropDialog from "@/components/admin/CropDialog";
+
+const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
 // Single-image uploader for a { url, alt, width?, height? } field — drag,
-// drop, or click to pick a file; uploads straight to Cloudinary. Falls back
-// gracefully (a clear error, not a crash) when Cloudinary isn't configured.
-export default function ImageUploader({ value, onChange, altPlaceholder = "" }) {
+// drop, or click to pick a file; uploads straight to Cloudinary. With an
+// `aspect`, the admin first crops the photo to the shape of the spot where it
+// appears on the site; without one (logos), the file is uploaded as-is.
+export default function ImageUploader({ value, onChange, altPlaceholder = "", aspect }) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+  const [cropSrc, setCropSrc] = useState(null);
 
-  async function handleFile(file) {
-    if (!file) return;
-    setError("");
+  async function upload(file) {
     setUploading(true);
     setProgress(0);
     try {
@@ -35,11 +39,47 @@ export default function ImageUploader({ value, onChange, altPlaceholder = "" }) 
     }
   }
 
+  function handleFile(file) {
+    if (!file) return;
+    setError("");
+    if (!aspect) return upload(file);
+    if (!ACCEPTED.includes(file.type)) return setError("Use a JPEG, PNG or WebP photo.");
+    setCropSrc(URL.createObjectURL(file));
+  }
+
+  function closeCrop() {
+    if (cropSrc?.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+  }
+
+  async function onCropConfirm(area) {
+    try {
+      const file = await cropToFile(cropSrc, area);
+      await upload(file);
+      closeCrop();
+    } catch (e) {
+      setError(e.message);
+      closeCrop();
+    }
+  }
+
+  function onPick(e) {
+    handleFile(e.target.files?.[0]);
+    e.target.value = ""; // allow picking the same file again
+  }
+
   function onDrop(e) {
     e.preventDefault();
     setDragOver(false);
     handleFile(e.dataTransfer.files?.[0]);
   }
+
+  const fileInput = (
+    <input ref={inputRef} type="file" accept={ACCEPTED.join(",")} hidden onChange={onPick} />
+  );
+  const cropper = cropSrc && (
+    <CropDialog src={cropSrc} aspect={aspect} busy={uploading} onCancel={closeCrop} onConfirm={onCropConfirm} />
+  );
 
   if (value?.url) {
     return (
@@ -51,26 +91,26 @@ export default function ImageUploader({ value, onChange, altPlaceholder = "" }) 
         <div className="uploader-preview-body">
           <input
             type="text"
-            placeholder="Alt text (required for accessibility)"
+            placeholder="Describe the photo (read aloud to blind visitors)"
             value={value.alt || ""}
             onChange={(e) => onChange({ ...value, alt: e.target.value })}
           />
           <div className="uploader-preview-actions">
-            <button type="button" className="admin-btn admin-btn-outline" onClick={() => inputRef.current?.click()}>
-              Replace
+            {aspect && (
+              <button type="button" className="admin-btn admin-btn-outline" onClick={() => setCropSrc(value.url)} disabled={uploading}>
+                Adjust crop
+              </button>
+            )}
+            <button type="button" className="admin-btn admin-btn-outline" onClick={() => inputRef.current?.click()} disabled={uploading}>
+              {uploading ? `Uploading… ${progress}%` : "Replace"}
             </button>
             <button type="button" className="admin-btn-danger" onClick={() => onChange(null)}>
               Remove
             </button>
           </div>
         </div>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          hidden
-          onChange={(e) => handleFile(e.target.files?.[0])}
-        />
+        {fileInput}
+        {cropper}
         {error && <p className="admin-error">{error}</p>}
       </div>
     );
@@ -81,6 +121,12 @@ export default function ImageUploader({ value, onChange, altPlaceholder = "" }) 
       <div
         className={`dropzone${dragOver ? " drag-over" : ""}`}
         onClick={() => !uploading && inputRef.current?.click()}
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === " ") && !uploading) {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -104,19 +150,16 @@ export default function ImageUploader({ value, onChange, altPlaceholder = "" }) 
               <path d="M17 8l-5-5-5 5" />
               <path d="M12 3v12" />
             </svg>
-            Drag an image here, or click to choose one
+            Tap to choose a photo, or drag one here
             <br />
-            <span style={{ fontSize: "0.74rem" }}>JPEG/PNG/WebP, up to 8MB</span>
+            <span style={{ fontSize: "0.74rem" }}>
+              JPEG, PNG or WebP{aspect ? " — you'll choose the crop next" : ", up to 8MB"}
+            </span>
           </>
         )}
       </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        hidden
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
+      {fileInput}
+      {cropper}
       {error && <p className="admin-error">{error}</p>}
     </div>
   );

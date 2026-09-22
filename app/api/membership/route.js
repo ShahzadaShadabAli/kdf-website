@@ -2,7 +2,7 @@ import { getDb } from "@/lib/firebase";
 import { docsToItems } from "@/lib/firestoreHelpers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { membershipSubmitSchema } from "@/lib/validation/membership";
+import { membershipSubmitSchema, PENDING_MEMBERSHIP_STATUSES } from "@/lib/validation/membership";
 import { toPlainText } from "@/lib/sanitize";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { hashIp } from "@/lib/cache";
@@ -62,7 +62,8 @@ export async function GET(request) {
 
   const db = await getDb();
   let ref = db.collection("membershipRequests");
-  if (status && status !== "all") ref = ref.where("status", "==", status);
+  if (status === "pending") ref = ref.where("status", "in", PENDING_MEMBERSHIP_STATUSES);
+  else if (status && status !== "all") ref = ref.where("status", "==", status);
   const snapshot = await ref.orderBy("createdAt", "desc").limit(limit).get();
 
   return Response.json({ items: docsToItems(snapshot) }, { headers: { "Cache-Control": "no-store" } });

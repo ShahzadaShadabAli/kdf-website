@@ -1,42 +1,94 @@
 "use client";
 import { useRef, useState } from "react";
 import { uploadImageToCloudinary } from "@/lib/uploadImage";
+import { cropToFile } from "@/lib/cropImage";
+import CropDialog from "@/components/admin/CropDialog";
+
+const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
 // Product images: an ordered list, one flagged isPrimary. First upload
-// becomes primary automatically.
-export default function MultiImageUploader({ images, onChange, altPlaceholder = "" }) {
+// becomes primary automatically. With an `aspect`, each chosen photo is
+// cropped (one after another) before it uploads.
+export default function MultiImageUploader({ images, onChange, altPlaceholder = "", aspect }) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+  // Crop step: files waiting to be cropped, or an existing image being re-cropped.
+  const [queue, setQueue] = useState([]);
+  const [cropSrc, setCropSrc] = useState(null);
+  const [recropIndex, setRecropIndex] = useState(null);
+
+  async function upload(file) {
+    setProgress(0);
+    const uploaded = await uploadImageToCloudinary(file, setProgress);
+    return { url: uploaded.url, width: uploaded.width, height: uploaded.height };
+  }
+
+  function newImage(uploaded, list) {
+    return {
+      ...uploaded,
+      // Every image needs non-empty alt text to save — default to the
+      // product name (editable per-image below).
+      alt: altPlaceholder || "Product photo",
+      isPrimary: list.length === 0,
+    };
+  }
 
   async function handleFiles(fileList) {
     const files = [...(fileList || [])];
     if (!files.length) return;
     setError("");
+    if (aspect) {
+      const usable = files.filter((f) => ACCEPTED.includes(f.type));
+      if (usable.length < files.length) setError("Some files were skipped — use JPEG, PNG or WebP photos.");
+      if (usable.length) startCrop(usable);
+      return;
+    }
     setUploading(true);
     try {
-      const newImages = [];
-      for (const file of files) {
-        setProgress(0);
-        const uploaded = await uploadImageToCloudinary(file, setProgress);
-        newImages.push({
-          url: uploaded.url,
-          width: uploaded.width,
-          height: uploaded.height,
-          // Every image needs non-empty alt text to save — default to the
-          // product name (editable per-image below) rather than block the
-          // save on an easy-to-miss blank field.
-          alt: altPlaceholder || "Product photo",
-          isPrimary: images.length === 0 && newImages.length === 0,
-        });
-      }
-      onChange([...images, ...newImages]);
+      let list = images;
+      for (const file of files) list = [...list, newImage(await upload(file), list)];
+      onChange(list);
     } catch (e) {
       setError(e.message);
     } finally {
       setUploading(false);
+    }
+  }
+
+  function startCrop(files) {
+    setQueue(files.slice(1));
+    setCropSrc(URL.createObjectURL(files[0]));
+  }
+
+  function nextInQueue() {
+    if (cropSrc?.startsWith("blob:")) URL.revokeObjectURL(cropSrc);
+    if (recropIndex === null && queue.length) {
+      setCropSrc(URL.createObjectURL(queue[0]));
+      setQueue(queue.slice(1));
+    } else {
+      setCropSrc(null);
+      setQueue([]);
+    }
+    setRecropIndex(null);
+  }
+
+  async function onCropConfirm(area) {
+    setUploading(true);
+    try {
+      const uploaded = await upload(await cropToFile(cropSrc, area));
+      if (recropIndex !== null) {
+        onChange(images.map((img, idx) => (idx === recropIndex ? { ...img, ...uploaded } : img)));
+      } else {
+        onChange([...images, newImage(uploaded, images)]);
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setUploading(false);
+      nextInQueue();
     }
   }
 
@@ -51,7 +103,7 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
   function removeImage(i) {
     const wasPrimary = images[i].isPrimary;
     const next = images.filter((_, idx) => idx !== i);
-    if (wasPrimary && next.length > 0) next[0].isPrimary = true;
+    if (wasPrimary && next.length > 0) next[0] = { ...next[0], isPrimary: true };
     onChange(next);
   }
 
@@ -74,11 +126,24 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
               </div>
               <input
                 type="text"
-                placeholder="Alt text"
+                placeholder="Describe the photo"
                 value={img.alt || ""}
                 onChange={(e) => updateImage(i, { alt: e.target.value })}
               />
               <div className="multi-uploader-actions">
+                {aspect && (
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-outline"
+                    disabled={uploading || !!cropSrc}
+                    onClick={() => {
+                      setRecropIndex(i);
+                      setCropSrc(img.url);
+                    }}
+                  >
+                    Adjust crop
+                  </button>
+                )}
                 {!img.isPrimary && (
                   <button type="button" className="admin-btn admin-btn-outline" onClick={() => setPrimary(i)}>
                     Make Primary
@@ -96,6 +161,12 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
       <div
         className={`dropzone${dragOver ? " drag-over" : ""}`}
         onClick={() => !uploading && inputRef.current?.click()}
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === " ") && !uploading) {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -114,20 +185,35 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
               <path d="M17 8l-5-5-5 5" />
               <path d="M12 3v12" />
             </svg>
-            Drag images here or click to upload
+            Tap to choose photos, or drag them here
             <br />
-            <span style={{ fontSize: "0.74rem" }}>JPEG/PNG/WebP, up to 8MB — first image becomes primary</span>
+            <span style={{ fontSize: "0.74rem" }}>
+              JPEG, PNG or WebP — {aspect ? "you'll crop each one next; " : ""}the first becomes the main photo
+            </span>
           </>
         )}
       </div>
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={ACCEPTED.join(",")}
         multiple
         hidden
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = "";
+        }}
       />
+      {cropSrc && (
+        <CropDialog
+          key={cropSrc}
+          src={cropSrc}
+          aspect={aspect}
+          busy={uploading}
+          onCancel={nextInQueue}
+          onConfirm={onCropConfirm}
+        />
+      )}
       {error && <p className="admin-error">{error}</p>}
     </div>
   );

@@ -13,7 +13,7 @@ export function SwatchPattern({ kind = 0, className }) {
   const [c1, c2] = PALETTES[kind % 3];
   if (kind % 3 === 0) {
     return (
-      <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
+      <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
         <rect width="200" height="200" fill="var(--paper)" />
         {Array.from({ length: 10 }).map((_, i) => (
           <line
@@ -34,7 +34,7 @@ export function SwatchPattern({ kind = 0, className }) {
     const rings = [];
     for (let r = 90; r > 0; r -= 14) rings.push(r);
     return (
-      <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
+      <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
         <rect width="200" height="200" fill="var(--paper)" />
         {rings.map((r, i) => (
           <circle key={i} cx="100" cy="100" r={r} fill="none" stroke={r % 28 < 14 ? c1 : c2} strokeWidth="6" opacity="0.55" />
@@ -47,7 +47,7 @@ export function SwatchPattern({ kind = 0, className }) {
     for (let y = 10; y < 190; y += 26) stitches.push([x, y]);
   }
   return (
-    <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
+    <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
       <rect width="200" height="200" fill="var(--paper)" />
       {stitches.map(([x, y], i) => (
         <path

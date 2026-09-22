@@ -55,7 +55,6 @@ export default function SuccessStoriesSection({ stories }) {
         <div className="section-head">
           <span className="section-eyebrow">Success Stories</span>
           <h2>Watch what the work looks like.</h2>
-          <p>Short videos from members and the Resource Center — played straight from YouTube.</p>
         </div>
         <div className="story-card-grid">
           {stories.map((story) => (

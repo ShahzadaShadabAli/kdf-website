@@ -94,7 +94,7 @@ export default function PartnersAdminPage() {
               )}
               {items.map((p) => (
                 <tr key={p._id}>
-                  <td>
+                  <td data-label="Logo">
                     <div className="thumb">
                       {p.logo?.url && (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -102,11 +102,11 @@ export default function PartnersAdminPage() {
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Name">
                     <strong>{p.name}</strong>
                   </td>
-                  <td style={{ color: "var(--ink-soft)" }}>{p.websiteUrl || "—"}</td>
-                  <td>
+                  <td data-label="Website" style={{ color: "var(--ink-soft)" }}>{p.websiteUrl || "—"}</td>
+                  <td data-label="Status">
                     <span className={`pill ${PILL[p.status]}`}>{p.status}</span>
                   </td>
                   <td>

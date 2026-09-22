@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { fetcher, apiSend } from "@/lib/swrFetcher";
 import ImageUploader from "@/components/admin/ImageUploader";
+import { ASPECT } from "@/lib/imageAspects";
+import { EMPTY_BANK_ACCOUNT, bankAccountsOf, isFilledIn } from "@/lib/bankAccounts";
 
 const FIELDS = [
   "heroHeadline",
@@ -10,16 +12,22 @@ const FIELDS = [
   "whatsappNumber",
   "contactEmail",
   "address",
-  "bankName",
-  "accountTitle",
-  "accountNumber",
-  "iban",
-  "branchName",
   "facebookUrl",
   "instagramUrl",
   "whatsappUrl",
   "linkedinUrl",
+  "tiktokUrl",
 ];
+
+const BANK_FIELDS = [
+  ["bankName", "Bank Name"],
+  ["accountTitle", "Account Title"],
+  ["accountNumber", "Account Number"],
+  ["iban", "IBAN"],
+  ["branchName", "Branch"],
+];
+
+const withAccounts = (settings) => ({ ...settings, bankAccounts: bankAccountsOf(settings) });
 
 export default function SettingsAdminPage() {
   // No background refetching: closing the file picker counts as a window
@@ -33,7 +41,7 @@ export default function SettingsAdminPage() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    if (data?.settings && !form) setForm(data.settings);
+    if (data?.settings && !form) setForm(withAccounts(data.settings));
   }, [data, form]);
 
   async function save() {
@@ -49,8 +57,11 @@ export default function SettingsAdminPage() {
       payload.logo = form.logo ?? null;
       payload.heroImage = form.heroImage ?? null;
       payload.storyImage = form.storyImage ?? null;
+      payload.bankAccounts = form.bankAccounts.filter(isFilledIn);
+      // Accounts now live in bankAccounts; clear the older single-account fields.
+      BANK_FIELDS.forEach(([f]) => (payload[f] = ""));
       const res = await apiSend("/api/settings", "PATCH", payload);
-      setForm(res.settings);
+      setForm(withAccounts(res.settings));
       await mutate({ settings: res.settings }, { revalidate: false });
       setStatus("Settings saved — the website is updated.");
     } catch (e) {
@@ -60,11 +71,15 @@ export default function SettingsAdminPage() {
     }
   }
 
+  function updateAccount(i, field, value) {
+    setForm({ ...form, bankAccounts: form.bankAccounts.map((a, idx) => (idx === i ? { ...a, [field]: value } : a)) });
+  }
+
   if (isLoading || !form) return <p>Loading…</p>;
 
   return (
     <>
-      <div className="admin-panel" style={{ padding: "26px 30px", maxWidth: 640, marginBottom: 24 }}>
+      <div className="admin-panel settings-panel">
         <h3 style={{ marginBottom: 22 }}>Site Copy &amp; Contact Details</h3>
         <div className="admin-field admin-field-full">
           <label>Hero Headline</label>
@@ -119,7 +134,7 @@ export default function SettingsAdminPage() {
         </p>
       </div>
 
-      <div className="admin-panel" style={{ padding: "26px 30px", maxWidth: 640, marginBottom: 24 }}>
+      <div className="admin-panel settings-panel">
         <h3 style={{ marginBottom: 22 }}>Logo &amp; Photos</h3>
         <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", marginBottom: 18 }}>
           Optional — each spot shows an illustrated graphic until a real image is uploaded here.
@@ -141,6 +156,7 @@ export default function SettingsAdminPage() {
             <label>Hero Photo</label>
             <ImageUploader
               value={form.heroImage}
+              aspect={ASPECT.hero}
               onChange={(v) => setForm({ ...form, heroImage: v })}
               altPlaceholder="Karakoram Disability Forum"
             />
@@ -149,6 +165,7 @@ export default function SettingsAdminPage() {
             <label>Story Photo</label>
             <ImageUploader
               value={form.storyImage}
+              aspect={ASPECT.story}
               onChange={(v) => setForm({ ...form, storyImage: v })}
               altPlaceholder="KDF's story"
             />
@@ -156,37 +173,46 @@ export default function SettingsAdminPage() {
         </div>
       </div>
 
-      <div className="admin-panel" style={{ padding: "26px 30px", maxWidth: 640, marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 22 }}>Donate — Bank Details</h3>
+      <div className="admin-panel settings-panel">
+        <h3 style={{ marginBottom: 22 }}>Donate — Bank Accounts</h3>
         <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", marginBottom: 18 }}>
-          Displayed as read-only text on the public Donate section — no payment is processed on
-          this site.
+          Visitors choose between these on the Donate section and copy the details. Nothing is
+          paid on this site. An account shows once it has an account number or IBAN.
         </p>
-        <div className="admin-field-grid">
-          <div className="admin-field">
-            <label>Bank Name</label>
-            <input value={form.bankName} onChange={(e) => setForm({ ...form, bankName: e.target.value })} />
+        {form.bankAccounts.map((account, i) => (
+          <div className="bank-account-card" key={i}>
+            <div className="bank-account-head">
+              <strong>{account.bankName || `Account ${i + 1}`}</strong>
+              <button
+                type="button"
+                className="admin-btn-danger"
+                onClick={() => setForm({ ...form, bankAccounts: form.bankAccounts.filter((_, idx) => idx !== i) })}
+              >
+                Remove
+              </button>
+            </div>
+            <div className="admin-field-grid">
+              {BANK_FIELDS.map(([field, label]) => (
+                <div className={`admin-field${field === "branchName" ? " admin-field-full" : ""}`} key={field}>
+                  <label>{label}</label>
+                  <input value={account[field] || ""} onChange={(e) => updateAccount(i, field, e.target.value)} />
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="admin-field">
-            <label>Account Title</label>
-            <input value={form.accountTitle} onChange={(e) => setForm({ ...form, accountTitle: e.target.value })} />
-          </div>
-          <div className="admin-field">
-            <label>Account Number</label>
-            <input value={form.accountNumber} onChange={(e) => setForm({ ...form, accountNumber: e.target.value })} />
-          </div>
-          <div className="admin-field">
-            <label>IBAN</label>
-            <input value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value })} />
-          </div>
-          <div className="admin-field admin-field-full">
-            <label>Branch</label>
-            <input value={form.branchName} onChange={(e) => setForm({ ...form, branchName: e.target.value })} />
-          </div>
-        </div>
+        ))}
+        {form.bankAccounts.length < 10 && (
+          <button
+            type="button"
+            className="admin-btn admin-btn-outline"
+            onClick={() => setForm({ ...form, bankAccounts: [...form.bankAccounts, { ...EMPTY_BANK_ACCOUNT }] })}
+          >
+            + Add {form.bankAccounts.length ? "another" : "a"} bank account
+          </button>
+        )}
       </div>
 
-      <div className="admin-panel" style={{ padding: "26px 30px", maxWidth: 640 }}>
+      <div className="admin-panel settings-panel">
         <h3 style={{ marginBottom: 22 }}>Social Links</h3>
         <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)", marginBottom: 18 }}>
           Leave a field blank to hide that icon in the footer.
@@ -212,17 +238,23 @@ export default function SettingsAdminPage() {
             <label>LinkedIn URL</label>
             <input value={form.linkedinUrl} onChange={(e) => setForm({ ...form, linkedinUrl: e.target.value })} />
           </div>
+          <div className="admin-field">
+            <label>TikTok URL</label>
+            <input
+              value={form.tiktokUrl || ""}
+              placeholder="https://www.tiktok.com/@..."
+              onChange={(e) => setForm({ ...form, tiktokUrl: e.target.value })}
+            />
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
-          <button className="admin-btn admin-btn-primary" onClick={save} disabled={saving}>
-            {saving ? "Saving…" : "Save Changes"}
-          </button>
-          {status && (
-            <span className="mono" style={{ fontSize: "0.76rem", color: "var(--ink-soft)" }}>
-              {status}
-            </span>
-          )}
-        </div>
+      </div>
+
+      {/* Stays on screen while scrolling, so saving never needs a long scroll on a phone. */}
+      <div className="settings-savebar">
+        <button className="admin-btn admin-btn-primary" onClick={save} disabled={saving}>
+          {saving ? "Saving…" : "Save Changes"}
+        </button>
+        {status && <span className="settings-status">{status}</span>}
       </div>
     </>
   );

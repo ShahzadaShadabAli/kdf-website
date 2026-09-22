@@ -49,14 +49,14 @@ export default function ContactMessagesPage() {
               {items.map((c) => (
                 <Fragment key={c._id}>
                   <tr style={{ cursor: "pointer" }} onClick={() => setOpenId(openId === c._id ? null : c._id)}>
-                    <td>
+                    <td data-label="Name">
                       <strong>{c.fullName}</strong>
                     </td>
-                    <td>{c.email}</td>
-                    <td className="mono" style={{ color: "var(--ink-soft)" }}>
+                    <td data-label="Email">{c.email}</td>
+                    <td data-label="Submitted" className="mono" style={{ color: "var(--ink-soft)" }}>
                       {new Date(c.createdAt).toLocaleDateString()}
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`pill ${PILL[c.status]}`}>{c.status}</span>
                     </td>
                     <td>

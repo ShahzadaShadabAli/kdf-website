@@ -5,6 +5,7 @@ import { fetcher, apiSend } from "@/lib/swrFetcher";
 import Drawer from "@/components/admin/Drawer";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { CABINET_STATUSES } from "@/lib/validation/cabinetMember";
+import { ASPECT } from "@/lib/imageAspects";
 
 const PILL = { published: "pill-published", draft: "pill-draft", archived: "pill-archived" };
 
@@ -115,15 +116,15 @@ export default function CabinetAdminPage() {
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Name">
                     <strong>{c.name}</strong>
                   </td>
-                  <td style={{ color: "var(--ink-soft)" }}>{c.role}</td>
-                  <td style={{ color: "var(--ink-soft)" }}>
+                  <td data-label="Role" style={{ color: "var(--ink-soft)" }}>{c.role}</td>
+                  <td data-label="Reports To" style={{ color: "var(--ink-soft)" }}>
                     {c.parentId ? byId.get(c.parentId)?.name || "—" : <em>Top level</em>}
                   </td>
-                  <td className="mono">{c.order}</td>
-                  <td>
+                  <td data-label="Order" className="mono">{c.order}</td>
+                  <td data-label="Status">
                     <span className={`pill ${PILL[c.status]}`}>{c.status}</span>
                   </td>
                   <td>
@@ -203,7 +204,7 @@ export default function CabinetAdminPage() {
         </div>
         <div className="admin-field">
           <label>Photo</label>
-          <ImageUploader value={form.photo} altPlaceholder={form.name} onChange={(photo) => setForm({ ...form, photo })} />
+          <ImageUploader value={form.photo} aspect={ASPECT.portrait} altPlaceholder={form.name} onChange={(photo) => setForm({ ...form, photo })} />
         </div>
       </Drawer>
     </>

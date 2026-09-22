@@ -104,14 +104,14 @@ export default function SuccessStoriesAdminPage() {
                         )}
                       </div>
                     </td>
-                    <td className="mono">{s.order}</td>
-                    <td>
+                    <td data-label="Order" className="mono">{s.order}</td>
+                    <td data-label="Title">
                       <strong>{s.title}</strong>
                     </td>
-                    <td style={{ color: "var(--ink-soft)", maxWidth: 260, wordBreak: "break-all" }}>
+                    <td data-label="YouTube Link" style={{ color: "var(--ink-soft)", maxWidth: 260, wordBreak: "break-all" }}>
                       {s.youtubeUrl}
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`pill ${PILL[s.status]}`}>{s.status}</span>
                     </td>
                     <td>

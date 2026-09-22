@@ -5,6 +5,7 @@ import { fetcher, apiSend } from "@/lib/swrFetcher";
 import Drawer from "@/components/admin/Drawer";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { VOICE_STATUSES } from "@/lib/validation/voice";
+import { ASPECT } from "@/lib/imageAspects";
 
 const PILL = { published: "pill-published", draft: "pill-draft", archived: "pill-archived" };
 
@@ -107,18 +108,18 @@ export default function VoicesAdminPage() {
                       )}
                     </div>
                   </td>
-                  <td className="mono">{v.order}</td>
-                  <td>
+                  <td data-label="Order" className="mono">{v.order}</td>
+                  <td data-label="Person">
                     <div className="cell-name">
                       <strong>{v.personName}</strong>
                       <span>{v.personRole}</span>
                     </div>
                   </td>
-                  <td style={{ color: "var(--ink-soft)", maxWidth: 260 }}>
+                  <td data-label="Quote" style={{ color: "var(--ink-soft)", maxWidth: 260 }}>
                     {v.quote.length > 80 ? `${v.quote.slice(0, 80)}…` : v.quote}
                   </td>
-                  <td style={{ color: "var(--ink-soft)" }}>{v.vignetteTitle}</td>
-                  <td>
+                  <td data-label="Vignette" style={{ color: "var(--ink-soft)" }}>{v.vignetteTitle}</td>
+                  <td data-label="Status">
                     <span className={`pill ${PILL[v.status]}`}>{v.status}</span>
                   </td>
                   <td>
@@ -213,6 +214,7 @@ export default function VoicesAdminPage() {
           <label>Vignette Image</label>
           <ImageUploader
             value={form.image}
+            aspect={ASPECT.vignette}
             altPlaceholder={form.vignetteTitle}
             onChange={(image) => setForm({ ...form, image })}
           />

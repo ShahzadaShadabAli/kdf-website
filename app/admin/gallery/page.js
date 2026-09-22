@@ -6,6 +6,7 @@ import Drawer from "@/components/admin/Drawer";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { GALLERY_CATEGORIES, GALLERY_STATUSES } from "@/lib/validation/galleryItem";
 import { ScenePattern, SCENE_KEYS } from "@/components/shared/PlaceholderArt";
+import { ASPECT } from "@/lib/imageAspects";
 
 const PILL = { published: "pill-published", draft: "pill-draft", archived: "pill-archived" };
 
@@ -165,6 +166,7 @@ export default function GalleryAdminPage() {
           <label>Photo</label>
           <ImageUploader
             value={form.image}
+            aspect={ASPECT.gallery}
             altPlaceholder={form.title}
             onChange={(image) => setForm({ ...form, image })}
           />

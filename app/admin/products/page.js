@@ -5,6 +5,7 @@ import { fetcher, apiSend } from "@/lib/swrFetcher";
 import Drawer from "@/components/admin/Drawer";
 import MultiImageUploader from "@/components/admin/MultiImageUploader";
 import { CRAFTS, PRODUCT_STATUSES } from "@/lib/validation/product";
+import { ASPECT } from "@/lib/imageAspects";
 
 const PILL = { published: "pill-published", draft: "pill-draft", archived: "pill-archived" };
 
@@ -127,17 +128,17 @@ export default function ProductsAdminPage() {
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Product">
                     <div className="cell-name">
                       <strong>{p.name}</strong>
                       <span>{p.makerName}</span>
                     </div>
                   </td>
-                  <td>{p.craft}</td>
-                  <td className="mono">
+                  <td data-label="Craft">{p.craft}</td>
+                  <td data-label="Price" className="mono">
                     {p.currency} {(p.priceMinor / 100).toLocaleString()}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`pill ${PILL[p.status]}`}>{p.status}</span>
                   </td>
                   <td>
@@ -238,6 +239,7 @@ export default function ProductsAdminPage() {
           <label>Images</label>
           <MultiImageUploader
             images={form.images}
+            aspect={ASPECT.product}
             altPlaceholder={form.name}
             onChange={(images) => setForm({ ...form, images })}
           />

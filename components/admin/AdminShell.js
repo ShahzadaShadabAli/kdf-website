@@ -128,7 +128,7 @@ const TITLES = {
   "/admin/success-stories": ["Success Stories", "Manage the YouTube video cards"],
   "/admin/cabinet": ["Cabinet", "Manage the leadership org chart"],
   "/admin/partners": ["Partners", "Manage funder & partner logos"],
-  "/admin/membership-requests": ["Membership Requests", "Honorary and permanent member applications"],
+  "/admin/membership-requests": ["Membership Requests", "Add or reject honorary and permanent member applications"],
   "/admin/contact-messages": ["Contact Messages", "General inquiries from the footer form"],
   "/admin/settings": ["Settings", "Editable site copy and contact details"],
   "/admin/users": ["Users", "Manage admin accounts and roles"],
@@ -141,7 +141,7 @@ export default function AdminShell({ session, children }) {
   const role = session?.user?.role;
   const [title, sub] = TITLES[pathname] || ["Admin", ""];
 
-  const { data: membershipData } = useSWR("/api/membership?status=new&limit=100", fetcher);
+  const { data: membershipData } = useSWR("/api/membership?status=pending&limit=100", fetcher);
   const { data: contactData } = useSWR("/api/contact?status=new&limit=100", fetcher);
   const badgeCounts = {
     "/admin/membership-requests": membershipData?.items?.length || 0,
@@ -150,6 +150,7 @@ export default function AdminShell({ session, children }) {
 
   return (
     <div className="admin-shell">
+      {open && <div className="sidebar-backdrop" onClick={() => setOpen(false)} aria-hidden="true" />}
       <aside className={`sidebar${open ? " open" : ""}`}>
         <div className="sidebar-brand">
           <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
