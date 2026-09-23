@@ -1,34 +1,11 @@
 "use client";
-import { useState } from "react";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
 import { fetcher, apiSend } from "@/lib/swrFetcher";
-import Drawer from "@/components/admin/Drawer";
-import { USER_ROLES } from "@/lib/validation/user";
 
 export default function UsersAdminPage() {
   const { data: session } = useSession();
   const { data, mutate, isLoading } = useSWR("/api/users", fetcher);
-  const [drawer, setDrawer] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", role: "editor" });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  async function invite() {
-    setSaving(true);
-    setError("");
-    try {
-      await apiSend("/api/users", "POST", form);
-      await mutate();
-      setDrawer(false);
-      setForm({ name: "", email: "", role: "editor" });
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   async function toggleActive(u) {
     await apiSend(`/api/users/${u._id}`, "PATCH", { isActive: !u.isActive });
     mutate();
@@ -38,12 +15,10 @@ export default function UsersAdminPage() {
 
   return (
     <>
-      <div className="admin-toolbar">
-        <div></div>
-        <button className="admin-btn admin-btn-primary" onClick={() => setDrawer(true)}>
-          + Invite Admin
-        </button>
-      </div>
+      <p className="admin-note">
+        Admin accounts are created by whoever set the website up. You can disable an account
+        here to stop it signing in, and each admin changes their own password under My Account.
+      </p>
       <div className="admin-panel">
         <div className="admin-table-wrap">
           <table className="admin-table">
@@ -96,38 +71,6 @@ export default function UsersAdminPage() {
         </div>
       </div>
 
-      <Drawer
-        open={drawer}
-        title="Invite Admin"
-        onClose={() => setDrawer(false)}
-        onSave={invite}
-        saving={saving}
-        saveLabel="Send Invite"
-        error={error}
-      >
-        <div className="admin-field">
-          <label>Name</label>
-          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        </div>
-        <div className="admin-field">
-          <label>Email</label>
-          <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        </div>
-        <div className="admin-field">
-          <label>Role</label>
-          <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-            {USER_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {r.replace("_", " ")}
-              </option>
-            ))}
-          </select>
-        </div>
-        <p style={{ fontSize: "0.8rem", color: "var(--ink-soft)" }}>
-          A production deployment emails a set-password link (Resend/SMTP) instead of a raw
-          password — wire <code>RESEND_API_KEY</code> and the invite flow to send one.
-        </p>
-      </Drawer>
     </>
   );
 }

@@ -11,10 +11,9 @@ async function countWhere(collectionRef, field, value) {
 
 async function getStats() {
   const db = await getDb();
-  const [publishedProducts, galleryItems, newContact, newMembership, auditLogSnap] = await Promise.all([
+  const [publishedProducts, galleryItems, newMembership, auditLogSnap] = await Promise.all([
     countWhere(db.collection("products"), "status", "published"),
     countWhere(db.collection("galleryItems"), "status", "published"),
-    countWhere(db.collection("contactMessages"), "status", "new"),
     db
       .collection("membershipRequests")
       .where("status", "in", PENDING_MEMBERSHIP_STATUSES)
@@ -26,7 +25,6 @@ async function getStats() {
   return {
     publishedProducts,
     galleryItems,
-    newContact,
     newMembership,
     auditLog: JSON.parse(JSON.stringify(docsToItems(auditLogSnap))),
   };
@@ -68,15 +66,6 @@ export default async function AdminDashboard() {
           </div>
           <div className="stat-num">{stats.galleryItems}</div>
           <div className="stat-label">Gallery items</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon" style={{ background: "rgba(168,70,47,0.12)", color: "var(--clay)" }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-            </svg>
-          </div>
-          <div className="stat-num">{stats.newContact}</div>
-          <div className="stat-label">New contact messages</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: "rgba(107,63,160,0.12)", color: "var(--purple)" }}>

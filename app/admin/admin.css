@@ -730,6 +730,13 @@
   margin-top: 10px;
 }
 
+.admin-note {
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+  max-width: 640px;
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
 .admin-empty-note {
   display: flex;
   align-items: center;
