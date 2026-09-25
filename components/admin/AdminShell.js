@@ -118,7 +118,7 @@ const TITLES = {
   "/admin/leaders": ["Leaders", "Manage the Leader's Note carousel"],
   "/admin/voices": ["Voices & Work", "Manage the homepage quote/vignette strip"],
   "/admin/success-stories": ["Success Stories", "Manage the YouTube video cards"],
-  "/admin/cabinet": ["Cabinet", "Manage the leadership org chart"],
+  "/admin/cabinet": ["Cabinet", "Male cabinet, female cabinet and governing body charts"],
   "/admin/partners": ["Partners", "Manage funder & partner logos"],
   "/admin/membership-requests": ["Membership Requests", "Add or reject honorary and permanent member applications"],
   "/admin/settings": ["Settings", "Editable site copy and contact details"],

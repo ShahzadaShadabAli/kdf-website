@@ -8,6 +8,7 @@ export const CabinetMemberShape = {
   role: "string", // e.g. "Chairperson", "Regional Coordinator"
   photo: "{ url, alt } | null",
   parentId: "string (Firestore document id) | null",
+  group: "male | female | governing", // which chart the member appears in
   order: "number", // sibling order under the same parent
   status: "draft | published | archived",
   createdAt: "Date",

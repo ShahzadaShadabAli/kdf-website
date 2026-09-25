@@ -6,7 +6,8 @@ import SuccessStoriesSection from "@/components/site/SuccessStoriesSection";
 import GalleryGrid from "@/components/site/GalleryGrid";
 import ShopGrid from "@/components/site/ShopGrid";
 import LeaderCarousel from "@/components/site/LeaderCarousel";
-import CabinetTree from "@/components/site/CabinetTree";
+import CabinetSection from "@/components/site/CabinetSection";
+import GoverningBodySection from "@/components/site/GoverningBodySection";
 import DonateSection from "@/components/site/DonateSection";
 import BecomeMemberSection from "@/components/site/BecomeMemberSection";
 import PartnersSection from "@/components/site/PartnersSection";
@@ -26,6 +27,7 @@ import {
 } from "@/lib/data";
 import { CRAFTS } from "@/lib/validation/product";
 import { GALLERY_CATEGORIES } from "@/lib/validation/galleryItem";
+import { groupOf } from "@/lib/validation/cabinetMember";
 
 export const revalidate = 300;
 
@@ -42,6 +44,9 @@ export default async function HomePage() {
     getMemberStats(),
   ]);
 
+  const cabinetByGroup = { male: [], female: [], governing: [] };
+  cabinet.forEach((member) => cabinetByGroup[groupOf(member)].push(member));
+
   return (
     <>
       <Nav active="Story" logo={settings?.logo} />
@@ -51,19 +56,14 @@ export default async function HomePage() {
         <Story settings={settings} />
         <Seam tone="paper" />
 
-        <section className="section on-card" id="cabinet">
-          <div className="wrap">
-            <div className="kicker">
-              <span className="num mono">02 — LEADERSHIP</span>
-              <span className="rule"></span>
-            </div>
-            <div className="section-head center">
-              <span className="section-eyebrow">The Cabinet</span>
-              <h2>Who runs the Forum.</h2>
-            </div>
-            <CabinetTree members={cabinet} />
-          </div>
-        </section>
+        <CabinetSection male={cabinetByGroup.male} female={cabinetByGroup.female} />
+
+        {cabinetByGroup.governing.length > 0 && (
+          <>
+            <Seam tone="paper" />
+            <GoverningBodySection members={cabinetByGroup.governing} />
+          </>
+        )}
 
         <Seam tone="paper" />
 
@@ -80,7 +80,7 @@ export default async function HomePage() {
         <section className="section on-paper" id="gallery">
           <div className="wrap">
             <div className="kicker">
-              <span className="num mono">05 — GALLERY</span>
+              <span className="num mono">06 — GALLERY</span>
               <span className="rule"></span>
             </div>
             <div className="section-head">
@@ -101,7 +101,7 @@ export default async function HomePage() {
         <section className="section on-card" id="shop">
           <div className="wrap">
             <div className="kicker">
-              <span className="num mono">06 — THE SHOP</span>
+              <span className="num mono">07 — THE SHOP</span>
               <span className="rule"></span>
             </div>
             <div className="section-head">
@@ -124,7 +124,7 @@ export default async function HomePage() {
             <section className="section on-paper" id="note">
               <div className="wrap">
                 <div className="kicker">
-                  <span className="num mono">07 — A NOTE</span>
+                  <span className="num mono">08 — A NOTE</span>
                   <span className="rule"></span>
                 </div>
                 <div className="section-head center">
@@ -154,7 +154,7 @@ export default async function HomePage() {
         <section className="section on-night" id="contact">
           <div className="wrap">
             <div className="kicker">
-              <span className="num mono">11 — GET IN TOUCH</span>
+              <span className="num mono">12 — GET IN TOUCH</span>
               <span className="rule"></span>
             </div>
             <div className="section-head">

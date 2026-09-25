@@ -34,7 +34,7 @@ export default function DonateSection({ settings }) {
     <section className="section on-card" id="donate">
       <div className="wrap">
         <div className="kicker">
-          <span className="num mono">08 — SUPPORT THE FORUM</span>
+          <span className="num mono">09 — SUPPORT THE FORUM</span>
           <span className="rule"></span>
         </div>
         <div className="section-head">

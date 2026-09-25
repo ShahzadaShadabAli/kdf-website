@@ -17,7 +17,7 @@ export default function VoicesStrip({ voices }) {
     <section className="section on-night" id="voices">
       <div className="wrap">
         <div className="kicker">
-          <span className="num mono">03 — VOICES &amp; WORK</span>
+          <span className="num mono">04 — VOICES &amp; WORK</span>
           <span className="rule"></span>
         </div>
         <div className="section-head">

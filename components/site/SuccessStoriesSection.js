@@ -49,7 +49,7 @@ export default function SuccessStoriesSection({ stories }) {
     <section className="section on-paper" id="success-stories">
       <div className="wrap">
         <div className="kicker">
-          <span className="num mono">04 — IN THEIR OWN VOICE</span>
+          <span className="num mono">05 — IN THEIR OWN VOICE</span>
           <span className="rule"></span>
         </div>
         <div className="section-head">

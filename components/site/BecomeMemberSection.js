@@ -150,7 +150,7 @@ export default function BecomeMemberSection({ stats }) {
     <section className="section on-paper" id="become-a-member">
       <div className="wrap">
         <div className="kicker">
-          <span className="num mono">09 — JOIN THE FORUM</span>
+          <span className="num mono">10 — JOIN THE FORUM</span>
           <span className="rule"></span>
         </div>
         <div className="section-head">

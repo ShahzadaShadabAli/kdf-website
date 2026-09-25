@@ -7,7 +7,7 @@ export default function PartnersSection({ partners }) {
     <section className="section on-paper" id="partners">
       <div className="wrap">
         <div className="kicker">
-          <span className="num mono">10 — SUPPORTED BY</span>
+          <span className="num mono">11 — SUPPORTED BY</span>
           <span className="rule"></span>
         </div>
         <div className="section-head center">

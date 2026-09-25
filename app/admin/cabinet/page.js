@@ -4,12 +4,17 @@ import useSWR from "swr";
 import { fetcher, apiSend } from "@/lib/swrFetcher";
 import Drawer from "@/components/admin/Drawer";
 import ImageUploader from "@/components/admin/ImageUploader";
-import { CABINET_STATUSES } from "@/lib/validation/cabinetMember";
+import {
+  CABINET_STATUSES,
+  CABINET_GROUPS,
+  CABINET_GROUP_LABELS,
+  groupOf,
+} from "@/lib/validation/cabinetMember";
 import { ASPECT } from "@/lib/imageAspects";
 
 const PILL = { published: "pill-published", draft: "pill-draft", archived: "pill-archived" };
 
-const EMPTY = { name: "", role: "", parentId: null, order: 0, status: "draft", photo: null };
+const EMPTY = { name: "", role: "", parentId: null, group: "male", order: 0, status: "draft", photo: null };
 
 // A member can't be reparented under itself or any of its own descendants —
 // that would create a cycle the tree renderer can't draw.
@@ -27,22 +32,34 @@ function descendantIds(items, rootId) {
 export default function CabinetAdminPage() {
   const { data, mutate, isLoading } = useSWR("/api/cabinet?admin=1", fetcher);
   const [drawer, setDrawer] = useState(null);
+  const [tab, setTab] = useState("male");
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const items = data?.items || [];
   const byId = useMemo(() => new Map(items.map((i) => [i._id, i])), [items]);
+  const counts = useMemo(
+    () => items.reduce((acc, i) => ({ ...acc, [groupOf(i)]: (acc[groupOf(i)] || 0) + 1 }), {}),
+    [items]
+  );
+  const shown = items.filter((i) => groupOf(i) === tab);
 
   function openNew() {
-    setForm(EMPTY);
+    setForm({ ...EMPTY, group: tab });
     setError("");
     setDrawer({ mode: "new" });
   }
   function openEdit(item) {
-    setForm({ ...item, photo: item.photo || null });
+    setForm({ ...item, group: groupOf(item), photo: item.photo || null });
     setError("");
     setDrawer({ mode: "edit", item });
+  }
+
+  // Moving someone to another chart can't keep a parent from the old one.
+  function changeGroup(group) {
+    const parent = form.parentId ? byId.get(form.parentId) : null;
+    setForm({ ...form, group, parentId: parent && groupOf(parent) === group ? form.parentId : null });
   }
 
   const blockedParentIds = drawer?.mode === "edit" ? descendantIds(items, drawer.item._id) : new Set();
@@ -78,12 +95,29 @@ export default function CabinetAdminPage() {
       <div className="admin-toolbar">
         <div className="admin-toolbar-left">
           <span style={{ fontSize: "0.86rem", color: "var(--ink-soft)" }}>
-            Set a member&apos;s parent to build the org chart — leave blank for a top-level role.
+            Each chart is built separately — set a member&apos;s parent to place them under
+            someone, or leave it blank for a top-level role.
           </span>
         </div>
         <button className="admin-btn admin-btn-primary" onClick={openNew}>
-          + Add Cabinet Member
+          + Add to {CABINET_GROUP_LABELS[tab]}
         </button>
+      </div>
+
+      <div className="admin-filter-tabs" role="tablist" aria-label="Choose a chart">
+        {CABINET_GROUPS.map((g) => (
+          <button
+            key={g}
+            type="button"
+            role="tab"
+            aria-selected={tab === g}
+            className={`admin-filter-tab${tab === g ? " active" : ""}`}
+            onClick={() => setTab(g)}
+          >
+            {CABINET_GROUP_LABELS[g]}
+            <span className="admin-filter-count">{counts[g] || 0}</span>
+          </button>
+        ))}
       </div>
 
       <div className="admin-panel">
@@ -106,7 +140,7 @@ export default function CabinetAdminPage() {
                   <td colSpan={7}>Loading…</td>
                 </tr>
               )}
-              {items.map((c) => (
+              {shown.map((c) => (
                 <tr key={c._id}>
                   <td>
                     <div className="thumb" style={{ borderRadius: "50%" }}>
@@ -121,7 +155,9 @@ export default function CabinetAdminPage() {
                   </td>
                   <td data-label="Role" style={{ color: "var(--ink-soft)" }}>{c.role}</td>
                   <td data-label="Reports To" style={{ color: "var(--ink-soft)" }}>
-                    {c.parentId ? byId.get(c.parentId)?.name || "—" : <em>Top level</em>}
+                    {c.parentId
+                      ? byId.get(c.parentId)?.name || byId.get(c.parentId)?.role || "—"
+                      : <em>Top level</em>}
                   </td>
                   <td data-label="Order" className="mono">{c.order}</td>
                   <td data-label="Status">
@@ -148,6 +184,14 @@ export default function CabinetAdminPage() {
                   </td>
                 </tr>
               ))}
+              {!isLoading && shown.length === 0 && (
+                <tr>
+                  <td colSpan={7}>
+                    Nobody in the {CABINET_GROUP_LABELS[tab].toLowerCase()} yet — add the first
+                    member.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -155,7 +199,7 @@ export default function CabinetAdminPage() {
 
       <Drawer
         open={!!drawer}
-        title={drawer?.mode === "new" ? "Add Cabinet Member" : `Edit — ${drawer?.item?.name}`}
+        title={drawer?.mode === "new" ? `Add to ${CABINET_GROUP_LABELS[form.group]}` : `Edit — ${drawer?.item?.name}`}
         onClose={() => setDrawer(null)}
         onSave={save}
         saving={saving}
@@ -172,6 +216,16 @@ export default function CabinetAdminPage() {
             <input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
           </div>
           <div className="admin-field admin-field-full">
+            <label>Chart</label>
+            <select value={form.group} onChange={(e) => changeGroup(e.target.value)}>
+              {CABINET_GROUPS.map((g) => (
+                <option key={g} value={g}>
+                  {CABINET_GROUP_LABELS[g]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="admin-field admin-field-full">
             <label>Reports To</label>
             <select
               value={form.parentId || ""}
@@ -179,10 +233,10 @@ export default function CabinetAdminPage() {
             >
               <option value="">— Top level —</option>
               {items
-                .filter((i) => !blockedParentIds.has(i._id))
+                .filter((i) => groupOf(i) === form.group && !blockedParentIds.has(i._id))
                 .map((i) => (
                   <option key={i._id} value={i._id}>
-                    {i.name} ({i.role})
+                    {i.name ? `${i.name} (${i.role})` : i.role}
                   </option>
                 ))}
             </select>
