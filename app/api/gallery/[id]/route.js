@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { galleryItemUpdateSchema } from "@/lib/validation/galleryItem";
 import { writeAuditLog } from "@/models/AuditLog";
 import { triggerRevalidate } from "@/lib/cache";
+import { withAlbumCover } from "@/lib/galleryCover";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ export async function PATCH(request, { params }) {
 
   const db = await getDb();
   const item = await updateById(db.collection("galleryItems"), params.id, {
-    ...parsed.data,
+    ...withAlbumCover(parsed.data),
     updatedAt: new Date(),
   });
   if (!item) return Response.json({ error: "Not found" }, { status: 404 });

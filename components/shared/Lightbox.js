@@ -1,9 +1,11 @@
 "use client";
 import { useEffect } from "react";
 import Image from "next/image";
+import { youtubeEmbed } from "@/lib/youtube";
 
 export default function Lightbox({ items, index, onClose, onStep }) {
   const item = items[index];
+  const many = items.length > 1;
 
   useEffect(() => {
     if (!item) return;
@@ -35,20 +37,34 @@ export default function Lightbox({ items, index, onClose, onStep }) {
           <path d="M6 6 L18 18 M18 6 L6 18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
       </button>
-      <button className="lightbox-nav prev" aria-label="Previous image" onClick={() => onStep(-1)}>
-        <svg viewBox="0 0 24 24" fill="none">
-          <path
-            d="M15 6 L9 12 L15 18"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-      <div className="lightbox-stage">
+      {many && (
+        <button className="lightbox-nav prev" aria-label="Previous image" onClick={() => onStep(-1)}>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M15 6 L9 12 L15 18"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
+      <div className={`lightbox-stage${item.youtubeId ? " wide" : ""}`}>
         <div className="lightbox-art">
-          {item.image?.url ? (
+          {item.youtubeId ? (
+            // The video plays from YouTube — autoplay is fine here because
+            // opening the viewer is itself a click.
+            <div className="lightbox-video">
+              <iframe
+                key={item.youtubeId}
+                src={youtubeEmbed(item.youtubeId, { autoplay: true })}
+                title={item.sub || item.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : item.image?.url ? (
             <Image
               src={item.image.url}
               alt={item.image.alt || item.title}
@@ -62,22 +78,26 @@ export default function Lightbox({ items, index, onClose, onStep }) {
         <div className="lightbox-cap">
           <strong>{item.title}</strong>
           <span>{item.sub}</span>
-          <span className="lightbox-count mono">
-            {index + 1} / {items.length}
-          </span>
+          {many && (
+            <span className="lightbox-count mono">
+              {index + 1} / {items.length}
+            </span>
+          )}
         </div>
       </div>
-      <button className="lightbox-nav next" aria-label="Next image" onClick={() => onStep(1)}>
-        <svg viewBox="0 0 24 24" fill="none">
-          <path
-            d="M9 6 L15 12 L9 18"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
+      {many && (
+        <button className="lightbox-nav next" aria-label="Next image" onClick={() => onStep(1)}>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M9 6 L15 12 L9 18"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

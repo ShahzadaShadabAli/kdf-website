@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { galleryItemSchema } from "@/lib/validation/galleryItem";
 import { writeAuditLog } from "@/models/AuditLog";
 import { triggerRevalidate } from "@/lib/cache";
+import { withAlbumCover } from "@/lib/galleryCover";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,7 @@ export async function POST(request) {
 
   const db = await getDb();
   const now = new Date();
-  const doc = { ...parsed.data, createdAt: now, updatedAt: now };
+  const doc = { ...withAlbumCover(parsed.data), createdAt: now, updatedAt: now };
   const ref = await db.collection("galleryItems").add(doc);
 
   await writeAuditLog(db, {

@@ -114,7 +114,7 @@ const ICONS = {
 const TITLES = {
   "/admin": ["Dashboard", "Overview of the site's content and activity"],
   "/admin/products": ["Products", "Manage the shop catalogue"],
-  "/admin/gallery": ["Gallery", "Manage photo essay images"],
+  "/admin/gallery": ["Gallery", "Photo albums — one album per event, with its videos"],
   "/admin/leaders": ["Leaders", "Manage the Leader's Note carousel"],
   "/admin/voices": ["Voices & Work", "Manage the homepage quote/vignette strip"],
   "/admin/success-stories": ["Success Stories", "Manage the YouTube video cards"],

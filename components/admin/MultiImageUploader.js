@@ -6,14 +6,29 @@ import CropDialog from "@/components/admin/CropDialog";
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
-// Product images: an ordered list, one flagged isPrimary. First upload
-// becomes primary automatically. With an `aspect`, each chosen photo is
-// cropped (one after another) before it uploads.
-export default function MultiImageUploader({ images, onChange, altPlaceholder = "", aspect }) {
+// An ordered list of photos, one flagged isPrimary — product images, and the
+// photos inside a gallery album. The first upload becomes primary
+// automatically. With an `aspect` each photo can be cropped to the frame it
+// will fill; `cropOnUpload` decides whether that happens as part of the
+// upload (products: one photo at a time) or only on demand via "Adjust crop"
+// (albums: dozens of photos at once, so a crop dialog per photo would be a
+// slog).
+export default function MultiImageUploader({
+  images,
+  onChange,
+  altPlaceholder = "",
+  aspect,
+  max,
+  cropOnUpload = true,
+  defaultAlt = "Product photo",
+  primaryLabel = "Primary",
+  primaryNote = "the first becomes the main photo",
+}) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [batch, setBatch] = useState(null);
   const [error, setError] = useState("");
   // Crop step: files waiting to be cropped, or an existing image being re-cropped.
   const [queue, setQueue] = useState([]);
@@ -30,8 +45,8 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
     return {
       ...uploaded,
       // Every image needs non-empty alt text to save — default to the
-      // product name (editable per-image below).
-      alt: altPlaceholder || "Product photo",
+      // product/album name (editable per-image below).
+      alt: altPlaceholder || defaultAlt,
       isPrimary: list.length === 0,
     };
   }
@@ -40,21 +55,39 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
     const files = [...(fileList || [])];
     if (!files.length) return;
     setError("");
-    if (aspect) {
-      const usable = files.filter((f) => ACCEPTED.includes(f.type));
-      if (usable.length < files.length) setError("Some files were skipped — use JPEG, PNG or WebP photos.");
-      if (usable.length) startCrop(usable);
+    let usable = files.filter((f) => ACCEPTED.includes(f.type));
+    if (usable.length < files.length) setError("Some files were skipped — use JPEG, PNG or WebP photos.");
+    if (!usable.length) return;
+    // Stop at the limit here rather than letting the save fail later.
+    if (max) {
+      const room = Math.max(0, max - images.length);
+      if (room === 0) {
+        setError(`That's the maximum of ${max} photos — remove one before adding another.`);
+        return;
+      }
+      if (usable.length > room) {
+        setError(`Only ${room} more photo${room === 1 ? "" : "s"} fit — the limit is ${max}.`);
+        usable = usable.slice(0, room);
+      }
+    }
+    if (aspect && cropOnUpload) {
+      startCrop(usable);
       return;
     }
     setUploading(true);
     try {
       let list = images;
-      for (const file of files) list = [...list, newImage(await upload(file), list)];
-      onChange(list);
+      for (let i = 0; i < usable.length; i++) {
+        if (usable.length > 1) setBatch({ done: i, total: usable.length });
+        list = [...list, newImage(await upload(usable[i]), list)];
+        // Show each photo as soon as it lands, so a long batch visibly fills up.
+        onChange(list);
+      }
     } catch (e) {
       setError(e.message);
     } finally {
       setUploading(false);
+      setBatch(null);
     }
   }
 
@@ -122,7 +155,7 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
               <div className="multi-uploader-thumb">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.url} alt={img.alt || ""} />
-                {img.isPrimary && <span className="multi-uploader-primary-tag">Primary</span>}
+                {img.isPrimary && <span className="multi-uploader-primary-tag">{primaryLabel}</span>}
               </div>
               <input
                 type="text"
@@ -146,7 +179,7 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
                 )}
                 {!img.isPrimary && (
                   <button type="button" className="admin-btn admin-btn-outline" onClick={() => setPrimary(i)}>
-                    Make Primary
+                    Make {primaryLabel}
                   </button>
                 )}
                 <button type="button" className="admin-btn-danger" onClick={() => removeImage(i)}>
@@ -177,7 +210,10 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
         tabIndex={0}
       >
         {uploading ? (
-          <>Uploading… {progress}%</>
+          <>
+            {batch ? `Uploading photo ${batch.done + 1} of ${batch.total}… ` : "Uploading… "}
+            {progress}%
+          </>
         ) : (
           <>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -188,7 +224,8 @@ export default function MultiImageUploader({ images, onChange, altPlaceholder = 
             Tap to choose photos, or drag them here
             <br />
             <span style={{ fontSize: "0.74rem" }}>
-              JPEG, PNG or WebP — {aspect ? "you'll crop each one next; " : ""}the first becomes the main photo
+              JPEG, PNG or WebP — {aspect && cropOnUpload ? "you'll crop each one next; " : ""}
+              {primaryNote}
             </span>
           </>
         )}

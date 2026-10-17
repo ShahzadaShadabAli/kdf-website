@@ -8,7 +8,7 @@ export const revalidate = 300;
 
 export const metadata = {
   title: "Gallery — Karakoram Disability Forum",
-  description: "Moments from around Skardu — craft circles, the Resource Center, and the shop shelf.",
+  description: "Event albums from around Skardu — craft circles, the Resource Center, and the shop shelf.",
 };
 
 export default async function GalleryPage() {
@@ -22,8 +22,8 @@ export default async function GalleryPage() {
           <span className="breadcrumb mono">Home / Gallery</span>
           <h1>Moments from around Skardu.</h1>
           <p>
-            Craft circles, the Resource Center, and the shop shelf. Click any tile to view it
-            fullscreen.
+            Craft circles, the Resource Center, and the shop shelf — grouped by event. Open an
+            album to flip through its photos and videos.
           </p>
         </div>
       </section>

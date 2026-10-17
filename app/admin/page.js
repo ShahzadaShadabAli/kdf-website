@@ -65,7 +65,7 @@ export default async function AdminDashboard() {
             </svg>
           </div>
           <div className="stat-num">{stats.galleryItems}</div>
-          <div className="stat-label">Gallery items</div>
+          <div className="stat-label">Gallery albums</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: "rgba(107,63,160,0.12)", color: "var(--purple)" }}>
